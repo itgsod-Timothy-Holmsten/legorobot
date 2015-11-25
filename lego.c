@@ -7,42 +7,56 @@
 
 #define DISTANCE 100
 
-task sensors()
-{
-    SetSensorColorFull(COLOR_SENSOR);
-    SetSensorUltrasonic(ULTRA_SENSOR);
-    Wait(15);
-}
-
-task forward()
+void forward()
 {
     OnRev(MOTOR_RIGHT, FORCE);
     OnRev(MOTOR_LEFT, FORCE);
 }
 
-task rotate()
+void backward()
+{
+    OnFwd(MOTOR_LEFT, FORCE);
+    OnFwd(MOTOR_RIGHT, FORCE);
+}
+
+void rotate()
 {
     OnRev(MOTOR_RIGHT, FORCE);
     OnFwd(MOTOR_LEFT, FORCE);
 }
 
-task wheels()
+task robot()
 {
     while(true)
     {
-        if(SensorUS(ULTRA_SENSOR) < DISTANCE) // Trying to find an object
+        if(Sensor(COLOR_SENSOR) < 3)
         {
-            forward();
+            backward();
+            Wait(300);
+            rotate();
+            Wait(300);
         }
         else
         {
-            rotate();
+            if(SensorUS(ULTRA_SENSOR) < DISTANCE) // Trying to find an object
+            {
+                forward();
+                Wait(100);
+            }
+            else
+            {
+                rotate();
+            }
+            Wait(15);
         }
     }
 }
 
 task main()
 {
+    SetSensorColorFull(COLOR_SENSOR);
+    SetSensorUltrasonic(ULTRA_SENSOR);
+
     Wait(3000);
-    Precedes(wheels, sensors);
+    robot();
 }
